@@ -3,7 +3,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const React = require('react')
-const Immutable = require('immutable')
 const SortableTable = require('../../app/renderer/components/common/sortableTable')
 const aboutActions = require('./aboutActions')
 const moment = require('moment')
@@ -20,20 +19,20 @@ class AboutCookies extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      cookies: new Immutable.List()
+      cookies: []
     }
   }
 
   updateCookies () {
     chrome.cookies.getAll({}, (cookies) => {
       this.setState({
-        cookies: new Immutable.List(cookies)
+        cookies
       })
     })
   }
 
   get isCookiesEmpty () {
-    return this.state.cookies.size === 0
+    return this.state.cookies.length === 0
   }
 
   get cookiesTable () {
@@ -44,6 +43,9 @@ class AboutCookies extends React.Component {
       defaultHeading='domain'
       addHoverClass
       multiSelect
+      contextMenuName='cookies'
+      onContextMenu={aboutActions.contextMenu}
+      rowObjects={this.state.cookies}
       rows={this.state.cookies.map((cookie) => {
         return COOKIE_FIELDS.map((fieldName) => {
           const value = cookie[fieldName]
@@ -67,7 +69,7 @@ class AboutCookies extends React.Component {
   }
 
   componentDidMount () {
-    // Workaround for table not sorting automatically (?)
+    // XXX: Workaround for table not sorting automatically
     window.addEventListener('load', () => {
       const th = document.querySelector('th')
       if (th) { th.click() }
