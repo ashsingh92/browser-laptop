@@ -97,10 +97,12 @@ class AboutCookies extends React.Component {
 
 const styles = StyleSheet.create({
   cookiesPage: {
+    userSelect: 'none',
     margin: '20px'
   },
   cookiesTitle: {
     display: 'inline',
+    userSelect: 'text',
     marginRight: '10px'
   },
   cookiesTitleWrapper: {
