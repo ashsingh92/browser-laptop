@@ -1299,6 +1299,8 @@ function onMainContextMenu (nodeProps, frame, tab, contextMenuType) {
     onLedgerContextMenu(nodeProps.location, nodeProps.hostPattern)
   } else if (contextMenuType === 'download') {
     onDownloadsToolbarContextMenu(nodeProps.downloadId, Immutable.fromJS(nodeProps))
+  } if (contextMenuType === 'cookies') {
+    onCookiesContextMenu(nodeProps)
   } else {
     const mainMenu = Menu.buildFromTemplate(mainTemplateInit(nodeProps, frame, tab))
     mainMenu.popup(getCurrentWindow())
@@ -1373,6 +1375,30 @@ function onLedgerContextMenu (location, hostPattern) {
     {
       label: locale.translation('deleteLedgerEntry'),
       click: () => appActions.changeSiteSetting(hostPattern, 'ledgerPaymentsShown', false)
+    }
+  ]
+  const menu = Menu.buildFromTemplate(template)
+  menu.popup(getCurrentWindow())
+}
+
+function onCookiesContextMenu (cookieProps) {
+  const template = [
+    {
+      label: locale.translation('deleteCookie'),
+      click: () => {
+      }
+    },
+    {
+      label: locale.translation('editCookie'),
+      click: () => {
+      }
+    },
+    CommonMenu.separatorMenuItem,
+    {
+      label: locale.translation('copyCookieToClipboard'),
+      click: () => {
+        clipboard.writeText(JSON.stringify(cookieProps))
+      }
     }
   ]
   const menu = Menu.buildFromTemplate(template)
