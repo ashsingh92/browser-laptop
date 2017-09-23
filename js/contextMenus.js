@@ -1271,7 +1271,7 @@ function onHamburgerMenu (location, e) {
   }))
 }
 
-function onMainContextMenu (nodeProps, frame, tab, contextMenuType) {
+function onMainContextMenu (nodeProps, frame, tab, contextMenuType, webview) {
   let data = Immutable.fromJS(nodeProps)
 
   if (!Array.isArray(nodeProps)) {
@@ -1300,7 +1300,7 @@ function onMainContextMenu (nodeProps, frame, tab, contextMenuType) {
   } else if (contextMenuType === 'download') {
     onDownloadsToolbarContextMenu(nodeProps.downloadId, Immutable.fromJS(nodeProps))
   } if (contextMenuType === 'cookies') {
-    onCookiesContextMenu(nodeProps)
+    onCookiesContextMenu(nodeProps, webview)
   } else {
     const mainMenu = Menu.buildFromTemplate(mainTemplateInit(nodeProps, frame, tab))
     mainMenu.popup(getCurrentWindow())
@@ -1381,26 +1381,23 @@ function onLedgerContextMenu (location, hostPattern) {
   menu.popup(getCurrentWindow())
 }
 
-function onCookiesContextMenu (cookieProps) {
+function onCookiesContextMenu (cookieProps, webview) {
+  const isMultiSelect = cookieProps instanceof Array
   const template = [
     {
-      label: locale.translation('deleteCookie'),
+      label: isMultiSelect ? locale.translation('deleteCookies') : locale.translation('deleteCookie'),
       click: () => {
-      }
-    },
-    {
-      label: locale.translation('editCookie'),
-      click: () => {
-      }
-    },
-    CommonMenu.separatorMenuItem,
-    {
-      label: locale.translation('copyCookieToClipboard'),
-      click: () => {
-        clipboard.writeText(JSON.stringify(cookieProps))
+        webview.send(messages.DELETE_SELECTED_COOKIES, isMultiSelect ? cookieProps : [cookieProps])
       }
     }
   ]
+  template.push(CommonMenu.separatorMenuItem)
+  template.push({
+    label: locale.translation('copyToClipboard'),
+    click: () => {
+      clipboard.writeText(JSON.stringify(cookieProps))
+    }
+  })
   const menu = Menu.buildFromTemplate(template)
   menu.popup(getCurrentWindow())
 }

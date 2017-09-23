@@ -547,7 +547,7 @@ class Frame extends React.Component {
             return
           }
           method = (nodeProps, contextMenuType) => {
-            contextMenus.onMainContextMenu(nodeProps, this.frame, this.tab, contextMenuType)
+            contextMenus.onMainContextMenu(nodeProps, this.frame, this.tab, contextMenuType, this.webview)
           }
           break
         case messages.STOP_LOAD:

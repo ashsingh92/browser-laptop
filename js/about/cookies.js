@@ -5,12 +5,15 @@
 const React = require('react')
 const SortableTable = require('../../app/renderer/components/common/sortableTable')
 const aboutActions = require('./aboutActions')
+const messages = require('../constants/messages')
 const moment = require('moment')
 
 const {StyleSheet, css} = require('aphrodite/no-important')
 
 require('../../less/about/common.less')
 require('../../node_modules/font-awesome/css/font-awesome.css')
+
+const ipc = window.chrome.ipcRenderer
 
 const COOKIE_FIELDS = ['domain', 'name', 'value', 'path', 'expirationDate', 'secure', 'httpOnly', 'session', 'hostOnly', 'sameSite', 'storeId']
 const INFO_URL = 'https://developer.chrome.com/extensions/cookies#type-Cookie'
@@ -21,6 +24,29 @@ class AboutCookies extends React.Component {
     this.state = {
       cookies: []
     }
+    ipc.on(messages.DELETE_SELECTED_COOKIES, (e, cookies) => {
+      cookies.forEach((cookie, index) => {
+        this.deleteCookie(cookie, index === cookies.length - 1)
+      })
+    })
+  }
+
+  deleteCookie (cookie, triggerUpdate) {
+    let domain = cookie.domain
+    if (domain.startsWith('.')) {
+      domain = domain.substring(1)
+    }
+    const url = `https://${domain}${cookie.path || ''}`
+    chrome.cookies.remove({
+      url,
+      name: cookie.name,
+      storeId: cookie.storeId
+    }, () => {
+      console.log('deleted', cookie)
+      if (triggerUpdate) {
+        this.updateCookies()
+      }
+    })
   }
 
   updateCookies () {
